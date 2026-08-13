@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — PasteToPlay</title>
+<style>
+:root { --bg:#0f0f14; --fg:#e8e6e0; --muted:#8a8780; --accent:#5cc8b0; --border:#2a2a35; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.wrap { max-width:720px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-size:1.8rem; font-weight:700; margin-bottom:4px; }
+.date { color:var(--muted); font-size:0.9rem; margin-bottom:32px; }
+h2 { font-size:1.2rem; font-weight:600; margin:32px 0 10px; }
+p { margin-bottom:14px; }
+ul { margin:0 0 14px 20px; }
+li { margin-bottom:6px; }
+.back { margin-top:48px; padding-top:24px; border-top:1px solid var(--border); font-size:0.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Privacy Policy</h1>
+<p class="date">Effective date: 2026-08-14</p>
+
+<p>PasteToPlay is a VR video player for Meta Quest 3, developed by an
+individual as a personal project. This policy describes what the app does and
+does not do with data.</p>
+
+<h2>No accounts, no backend</h2>
+<p>The app has no user accounts and no server backend operated by the developer.
+You do not sign in, and the developer does not operate any service that the app
+connects to.</p>
+
+<h2>No analytics or advertising</h2>
+<p>The app contains no analytics SDKs, no advertising SDKs, and no crash-reporting
+SDKs. Unity Analytics, Unity Crash Reporting, and Unity Purchasing are disabled.
+No usage data, telemetry, or crash reports are sent anywhere.</p>
+
+<h2>Data stored on your device</h2>
+<p>The only data the app stores is a list of recently pasted video URLs, kept
+on the headset using Unity PlayerPrefs. This history is never transmitted to
+the developer or any third party. You can clear it in-app at any time using
+the Clear button next to the Recent links list, and it is deleted when you
+uninstall the app.</p>
+
+<h2>Network connections the app makes</h2>
+<ul>
+<li><strong>Media URLs you provide.</strong> The app connects directly from
+your headset to the video URL you paste or enter. The developer never sees
+these URLs.</li>
+<li><strong>DLNA servers on your local network.</strong> When you use the DLNA
+browser, the app sends SSDP multicast and HTTP requests to DLNA media servers
+on your LAN that you select.</li>
+<li><strong>Local read-ahead proxy.</strong> The app runs a proxy on
+<code>127.0.0.1</code> (localhost) inside the device for buffered playback.
+This never leaves the headset.</li>
+</ul>
+
+<h2>Android permissions</h2>
+<ul>
+<li><code>INTERNET</code> — to stream the video URLs you provide.</li>
+<li><code>ACCESS_WIFI_STATE</code> — to obtain the multicast lock for DLNA
+SSDP discovery.</li>
+<li><code>CHANGE_WIFI_MULTICAST_STATE</code> — to hold the WifiManager
+MulticastLock during DLNA discovery.</li>
+<li><code>ACCESS_NETWORK_STATE</code> — to check network connectivity before
+playback.</li>
+</ul>
+
+<h2>No data collection</h2>
+<p>No data is collected, sold, or shared with third parties. The developer does
+not have access to your video URLs, your DLNA server contents, or your viewing
+activity.</p>
+
+<h2>Contact</h2>
+<p>Questions about this policy: <a href="mailto:pastetoplay@proton.me">pastetoplay@proton.me</a></p> <!-- pg-allow: public privacy contact email -->
+
+<div class="back">
+<a href="index.html">&larr; Back to PasteToPlay</a>
+</div>
+</div>
+</body>
+</html>

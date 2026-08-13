@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PasteToPlay — VR video player for Meta Quest 3</title>
+<style>
+:root { --bg:#0f0f14; --fg:#e8e6e0; --muted:#8a8780; --accent:#5cc8b0; --card:#1a1a22; --border:#2a2a35; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; }
+a { color:var(--accent); text-decoration:none; }
+a:hover { text-decoration:underline; }
+.wrap { max-width:720px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-size:2rem; font-weight:700; margin-bottom:8px; }
+.tagline { color:var(--muted); font-size:1.1rem; margin-bottom:32px; }
+h2 { font-size:1.3rem; font-weight:600; margin:36px 0 12px; color:var(--fg); }
+p { margin-bottom:14px; }
+ul { margin:0 0 14px 20px; }
+li { margin-bottom:6px; }
+.feature { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px 24px; margin-bottom:16px; }
+.feature h3 { font-size:1.05rem; font-weight:600; margin-bottom:6px; }
+.feature p { color:var(--muted); font-size:0.95rem; margin:0; }
+.footer { margin-top:48px; padding-top:24px; border-top:1px solid var(--border); color:var(--muted); font-size:0.9rem; }
+.footer a { margin-right:16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>PasteToPlay</h1>
+<p class="tagline">Paste a link, it just plays — auto-detects 180/360, SBS/TB, fisheye.</p>
+
+<div class="feature">
+<h3>Paste to play</h3>
+<p>Paste a video URL from the Quest clipboard into the address bar, or type one in. The app connects directly to the source — no companion app, no server, no account.</p>
+</div>
+
+<div class="feature">
+<h3>Auto format detection</h3>
+<p>View (flat / 180 / 360), Stereo (mono / SBS / TB), and Lens (rectilinear / equirect / fisheye) are read from the video frames at playback start. Each axis can be switched manually from the dock.</p>
+</div>
+
+<div class="feature">
+<h3>DLNA browsing</h3>
+<p>Browse and play from DLNA media servers on your local network.</p>
+</div>
+
+<div class="feature">
+<h3>Native playback</h3>
+<p>ExoPlayer decoding: MP4, HLS, DASH, SmoothStreaming. Automatic fallback to Unity VideoPlayer if the native path fails.</p>
+</div>
+
+<h2>Privacy</h2>
+<p>No accounts, no analytics, no crash-reporting. The only data stored is your recently pasted URL history, kept on-device and never transmitted.</p>
+<p><a href="privacy.html">Full privacy policy</a></p>
+
+<h2>Support</h2>
+<p>Questions or issues? Email <a href="mailto:pastetoplay@proton.me">pastetoplay@proton.me</a>.</p> <!-- pg-allow: public support email for store listing -->
+
+<h2>Availability</h2>
+<p>Meta Quest 3. A personal project, actively developed.</p>
+
+<div class="footer">
+<a href="privacy.html">Privacy Policy</a>
+<a href="mailto:pastetoplay@proton.me">Contact</a> <!-- pg-allow: public support email -->
+<span>PasteToPlay is a personal project, not affiliated with Meta.</span>
+</div>
+</div>
+</body>
+</html>
