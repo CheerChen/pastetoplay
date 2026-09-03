@@ -4,67 +4,467 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" type="image/png" href="assets/icon.png">
-<title>PasteToPlay — VR video player for Meta Quest 3</title>
+<title>PasteToPlay — VR video player for Meta Quest</title>
+<meta name="description" content="A VR video player for Meta Quest. Paste a link, it just plays — auto-detects flat, VR180, 360, SBS, TB, and dual-fisheye from the actual frames.">
+<meta property="og:title" content="PasteToPlay — VR video player for Meta Quest">
+<meta property="og:description" content="Paste a link, it just plays. Auto-detects flat, VR180, 360, SBS, TB, and dual-fisheye — from the actual frames, not the filename.">
+<meta property="og:image" content="assets/screenshot-1.png">
+<meta property="og:type" content="website">
 <style>
-:root { --bg:#0f0f14; --fg:#e8e6e0; --muted:#8a8780; --accent:#5cc8b0; --card:#1a1a22; --border:#2a2a35; }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--bg); color:var(--fg); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.6; }
-a { color:var(--accent); text-decoration:none; }
-a:hover { text-decoration:underline; }
-.wrap { max-width:720px; margin:0 auto; padding:48px 24px 80px; }
-h1 { font-size:2rem; font-weight:700; margin-bottom:8px; }
-.tagline { color:var(--muted); font-size:1.1rem; margin-bottom:32px; }
-h2 { font-size:1.3rem; font-weight:600; margin:36px 0 12px; color:var(--fg); }
-p { margin-bottom:14px; }
-ul { margin:0 0 14px 20px; }
-li { margin-bottom:6px; }
-.feature { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:20px 24px; margin-bottom:16px; }
-.feature h3 { font-size:1.05rem; font-weight:600; margin-bottom:6px; }
-.feature p { color:var(--muted); font-size:0.95rem; margin:0; }
-.footer { margin-top:48px; padding-top:24px; border-top:1px solid var(--border); color:var(--muted); font-size:0.9rem; }
-.footer a { margin-right:16px; }
+:root {
+  --bg: #F5F5F7;
+  --ink: #1D1D1F;
+  --soft: #6E6E73;
+  --muted: #86868B;
+  --accent: #B8842A;
+  --accent-hover: #9E6F1F;
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 32px rgba(0,0,0,0.06);
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 12px 40px rgba(0,0,0,0.08);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.47;
+  -webkit-font-smoothing: antialiased;
+  font-optical-sizing: auto;
+}
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 80px 24px 96px;
+}
+/* Translucent nav bar */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: -80px -24px 64px;
+  padding: 12px 24px;
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--glass-border);
+}
+.nav-inner {
+  max-width: 932px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav .brand {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.brand-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: block;
+}
+.nav .brand .accent { color: var(--accent); }
+.nav .links { display: flex; gap: 28px; }
+.nav a {
+  font-size: 0.87rem;
+  color: var(--soft);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.nav a:hover { color: var(--ink); }
+/* Hero */
+.eyebrow {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+h1 {
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.07;
+  margin-bottom: 16px;
+  max-width: 680px;
+}
+h1 .accent { color: var(--accent); }
+.tagline {
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--soft);
+  line-height: 1.4;
+  margin-bottom: 36px;
+  max-width: 580px;
+}
+.cta-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 56px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+/* Official-style store badge — dark, like "Download on the App Store" */
+.store-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #000;
+  color: #FFF;
+  padding: 10px 20px 10px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  line-height: 1.1;
+}
+.store-badge:active { transform: scale(0.97); }
+.store-badge:hover { opacity: 0.85; }
+.store-badge .badge-logo {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+.store-badge .badge-text {
+  display: flex;
+  flex-direction: column;
+}
+.store-badge .badge-text .small {
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  opacity: 0.85;
+}
+.store-badge .badge-text .big {
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 980px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  color: var(--accent);
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+}
+.btn-ghost:active { transform: scale(0.97); }
+.btn-ghost:hover { background: rgba(255,255,255,0.9); }
+/* Screenshot carousel */
+.carousel {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(0,0,0,0.06);
+  margin-bottom: 64px;
+  position: relative;
+}
+.carousel-track {
+  display: flex;
+  scroll-snap-type: x mandatory;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+}
+.carousel-slide img {
+  width: 100%;
+  display: block;
+}
+.carousel-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 12px 0;
+  background: rgba(255,255,255,0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+}
+.carousel-dot.active { background: var(--accent); }
+.carousel-dot:hover { background: rgba(0,0,0,0.3); }
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--ink);
+  transition: opacity 0.2s;
+  user-select: none;
+}
+.carousel-arrow:hover { background: rgba(255,255,255,0.9); }
+.carousel-arrow.prev { left: 12px; }
+.carousel-arrow.next { right: 12px; }
+/* Features as translucent glass cards */
+.features {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 56px;
+}
+.feature {
+  padding: 28px 24px;
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  box-shadow: var(--glass-shadow);
+}
+.feature .glyph {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: rgba(184, 132, 42, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+.feature .glyph svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--accent);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.feature h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.feature p {
+  font-size: 0.92rem;
+  color: var(--soft);
+  line-height: 1.45;
+}
+/* Spec strip */
+.spec-strip {
+  display: flex;
+  gap: 48px;
+  padding: 24px 0;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+.spec .label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+.spec .value {
+  font-size: 1rem;
+  font-weight: 500;
+}
+/* Privacy section */
+.privacy-section {
+  margin-bottom: 40px;
+}
+.privacy-section p {
+  font-size: 0.95rem;
+  color: var(--soft);
+  line-height: 1.55;
+  margin-bottom: 8px;
+}
+.privacy-section a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.privacy-section a:hover { text-decoration: underline; }
+.footer {
+  font-size: 0.82rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+}
+@media (max-width: 640px) {
+  .features { grid-template-columns: 1fr; }
+  .spec-strip { gap: 24px; }
+  .nav .links { gap: 16px; }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1><img src="assets/logo.png" alt="PasteToPlay" style="height:72px;width:auto;display:block;margin-bottom:4px"></h1>
-<p class="tagline">Paste a link, it just plays — auto-detects 180/360, SBS/TB, fisheye.</p>
-
-<div class="feature">
-<h3>Paste to play</h3>
-<p>Paste a video URL from the Quest clipboard into the address bar, or type one in. The app connects directly to the source — no companion app, no server, no account.</p>
+  <nav class="nav">
+    <div class="nav-inner">
+      <span class="brand"><img src="assets/icon.png" alt="" class="brand-icon"><span>PasteTo<span class="accent">Play</span></span></span>
+      <div class="links">
+        <a href="privacy.html">Privacy</a>
+        <a href="mailto:pastetoplay@proton.me">Contact</a> <!-- pg-allow: public support email -->
+      </div>
+    </div>
+  </nav>
+  <div class="eyebrow">VR Video Player · Meta Quest 2 / 3 / 3S / Pro</div>
+  <h1>Paste a link,<br>it just <span class="accent">plays</span>.</h1>
+  <p class="tagline">Auto-detects flat, VR180, 360, SBS, TB, and dual-fisheye — from the actual frames, not the filename.</p>
+  <div class="cta-row">
+    <a class="store-badge" href="https://www.meta.com/experiences/pastetoplay-180360-vr-video-player/1231909206675936/">
+      <svg class="badge-logo" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 18C6 13 9 10 13 10C15 10 16.5 11 18 13C19.5 11 21 10 23 10C27 10 30 13 30 18C30 23 27 26 23 26C21 26 19.5 25 18 23C16.5 25 15 26 13 26C9 26 6 23 6 18Z" fill="white"/>
+      </svg>
+      <span class="badge-text">
+        <span class="small">Download on</span>
+        <span class="big">Meta Horizon Store</span>
+      </span>
+    </a>
+  </div>
+  <div class="carousel">
+    <div class="carousel-track" id="carousel">
+      <div class="carousel-slide"><img src="assets/screenshot-2.png" alt="PasteToPlay — playback"></div>
+      <div class="carousel-slide"><img src="assets/screenshot-3.png" alt="PasteToPlay — format dock"></div>
+      <div class="carousel-slide"><img src="assets/screenshot-4.png" alt="PasteToPlay — DLNA browser"></div>
+      <div class="carousel-slide"><img src="assets/screenshot-5.png" alt="PasteToPlay — recent links"></div>
+      <div class="carousel-slide"><img src="assets/screenshot-1.png" alt="PasteToPlay — address bar"></div>
+    </div>
+    <button class="carousel-arrow prev" onclick="carouselMove(-1)" aria-label="Previous">&#8249;</button>
+    <button class="carousel-arrow next" onclick="carouselMove(1)" aria-label="Next">&#8250;</button>
+    <div class="carousel-dots" id="carousel-dots"></div>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="glyph"><svg viewBox="0 0 24 24"><path d="M9 3h6a1 1 0 0 1 1 1v1h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3V4a1 1 0 0 1 1-1z"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <h3>Paste to play</h3>
+      <p>Paste a URL from the Quest clipboard, or type one with the in-app keyboard. No companion app, no server, no account.</p>
+    </div>
+    <div class="feature">
+      <div class="glyph"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M7 12a5 5 0 0 1 10 0"/><circle cx="12" cy="12" r="1.5"/></svg></div>
+      <h3>Auto format detection</h3>
+      <p>View, stereo, and lens are read from video frames at playback start. One-tap manual override from the dock.</p>
+    </div>
+    <div class="feature">
+      <div class="glyph"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="6" rx="1"/><rect x="3" y="14" width="18" height="6" rx="1"/><circle cx="7" cy="7" r="0.5" fill="currentColor" stroke="none"/><circle cx="7" cy="17" r="0.5" fill="currentColor" stroke="none"/></svg></div>
+      <h3>DLNA browsing</h3>
+      <p>Browse and play from DLNA media servers on your local network.</p>
+    </div>
+    <div class="feature">
+      <div class="glyph"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8V4z"/></svg></div>
+      <h3>Native playback</h3>
+      <p>ExoPlayer decoding: MP4, HLS, DASH, SmoothStreaming. Resume playback for direct links and DLNA.</p>
+    </div>
+  </div>
+  <div class="spec-strip">
+    <div class="spec"><div class="label">Platform</div><div class="value">Meta Quest 2 / 3 / 3S / Pro</div></div>
+    <div class="spec"><div class="label">Engine</div><div class="value">Unity 6000</div></div>
+    <div class="spec"><div class="label">Backend</div><div class="value">ExoPlayer</div></div>
+  </div>
+  <div class="privacy-section">
+    <p>No accounts, no analytics, no advertising, no crash reporting. Recent links and resume positions stay on-device; clearing history removes both.</p>
+    <p><a href="privacy.html">Full privacy policy →</a></p>
+  </div>
+  <div class="footer">
+    <span>Personal project · actively developed · not affiliated with Meta</span>
+    <span><a href="mailto:pastetoplay@proton.me">pastetoplay@proton.me</a></span> <!-- pg-allow: public support email -->
+  </div>
 </div>
+<script>
+(function() {
+  var track = document.getElementById('carousel');
+  var slides = track.children;
+  var dotsContainer = document.getElementById('carousel-dots');
+  var current = 0;
 
-<div class="feature">
-<h3>Auto format detection</h3>
-<p>View (flat / 180 / 360), Stereo (mono / SBS / TB), and Lens (rectilinear / equirect / fisheye) are read from the video frames at playback start. Each axis can be switched manually from the dock.</p>
-</div>
+  for (var i = 0; i < slides.length; i++) {
+    (function(idx) {
+      var dot = document.createElement('button');
+      dot.className = 'carousel-dot' + (idx === 0 ? ' active' : '');
+      dot.onclick = function() { goTo(idx); };
+      dotsContainer.appendChild(dot);
+    })(i);
+  }
 
-<div class="feature">
-<h3>DLNA browsing</h3>
-<p>Browse and play from DLNA media servers on your local network.</p>
-</div>
+  function updateDots() {
+    var dots = dotsContainer.children;
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].className = 'carousel-dot' + (i === current ? ' active' : '');
+    }
+  }
 
-<div class="feature">
-<h3>Native playback</h3>
-<p>ExoPlayer decoding: MP4, HLS, DASH, SmoothStreaming. Automatic fallback to Unity VideoPlayer if the native path fails.</p>
-</div>
+  function goTo(idx) {
+    current = (idx + slides.length) % slides.length;
+    track.scrollTo({ left: slides[current].offsetLeft, behavior: 'smooth' });
+    updateDots();
+  }
 
-<h2>Privacy</h2>
-<p>No accounts, no analytics, no crash-reporting. The only data stored is your recently pasted URL history, kept on-device and never transmitted.</p>
-<p><a href="privacy.html">Full privacy policy</a></p>
+  window.carouselMove = function(dir) {
+    goTo(current + dir);
+  };
 
-<h2>Support</h2>
-<p>Questions or issues? Email <a href="mailto:pastetoplay@proton.me">pastetoplay@proton.me</a>.</p> <!-- pg-allow: public support email for store listing -->
+  track.addEventListener('scroll', function() {
+    var slideWidth = track.clientWidth;
+    var newIdx = Math.round(track.scrollLeft / slideWidth);
+    if (newIdx !== current) {
+      current = newIdx;
+      updateDots();
+    }
+  });
 
-<h2>Availability</h2>
-<p>Meta Quest 3. A personal project, actively developed.</p>
-
-<div class="footer">
-<a href="privacy.html">Privacy Policy</a>
-<a href="mailto:pastetoplay@proton.me">Contact</a> <!-- pg-allow: public support email -->
-<span>PasteToPlay is a personal project, not affiliated with Meta.</span>
-</div>
-</div>
+  // Auto-rotate every 4s, pause on hover/touch
+  var autoTimer = null;
+  function startAuto() {
+    stopAuto();
+    autoTimer = setInterval(function() { goTo(current + 1); }, 4000);
+  }
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+  }
+  var carousel = track.parentElement;
+  carousel.addEventListener('mouseenter', stopAuto);
+  carousel.addEventListener('mouseleave', startAuto);
+  carousel.addEventListener('touchstart', stopAuto, { passive: true });
+  carousel.addEventListener('touchend', function() { setTimeout(startAuto, 3000); }, { passive: true });
+  startAuto();
+})();
+</script>
 </body>
 </html>
